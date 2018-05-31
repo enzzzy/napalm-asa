@@ -138,6 +138,8 @@ class ASADriver(NetworkDriver):
         self.username = username
         self.password = password
         self.hostname = hostname
+        self.multicontext = False
+        self.contexts = None
         self.port = optional_args.get('port', 443)
         self.timeout = timeout
         self.up = False
@@ -206,6 +208,17 @@ class ASADriver(NetworkDriver):
 
         return ifs_details
 
+    def _get_contexts(self):
+        try:
+            resp = self._send_request('/contextmgmt/securitycontexts')
+        except CommandErrorException as e:
+            if str(e)[-3:] == "400":
+                self.multicontext = False
+            return
+        self.multicontext = True
+        self.contexts = [ c['name'] for c in resp['items']]
+        self.contexts.append('system')
+
     def open(self):
         """
         Open a connection to the device.
@@ -217,6 +230,7 @@ class ASADriver(NetworkDriver):
         auth_result, code = self._authenticate()
         if auth_result:
             self.up = True
+            self._get_contexts()
             return True
         else:
             self.up = False
@@ -232,13 +246,15 @@ class ASADriver(NetworkDriver):
         else:
             raise ConnectionException('Cannot connect to {}. Error {}'.format(self.hostname, code))
 
-    def cli(self, commands):
+    def cli(self, commands, context=None):
         """Run CLI commands via the API."""
+        self._check_context_exists(context)
         data = {
                   "commands": commands
                 }
 
-        response = self._send_request('/cli', data)
+        endp = '/cli?context={}'.format(context) if context else '/cli'
+        response = self._send_request(endp, data)
 
         result_dict = {}
 
@@ -308,8 +324,20 @@ class ASADriver(NetworkDriver):
 
         return interfaces
 
-    def get_config(self, retrieve='all'):
+    def _check_context_exists(self,context):
+        if context:
+            if not self.multicontext:
+                e = "Device is not in multicontext mode"
+                raise CommandException(e)
+            if not context in self.contexts:
+                e = "Context {} does not exist on device".format(context)
+                raise CommandException(e)
+
+    def get_config(self, retrieve='all',context=None):
         """Get config."""
+        
+        self._check_context_exists(context)
+
         config = {
             'startup': '',
             'running': '',
@@ -326,7 +354,7 @@ class ASADriver(NetworkDriver):
             commands.append(running_cmd)
 
         if retrieve.lower() in ['running', 'startup', 'all']:
-            results = self.cli(commands)
+            results = self.cli(commands, context)
 
         if retrieve.lower() in ['startup', 'all']:
             config['startup'] = results[startup_cmd]
