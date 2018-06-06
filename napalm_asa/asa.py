@@ -25,8 +25,10 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 import json
 import re
 from collections import OrderedDict
+import time
 
 # import third party lib
+from napalm_asa._MC_INCOMPATIBLE_ENDPOINTS import MC_INCOMPATIBLE_ENDPOINTS
 from netaddr import IPNetwork
 
 from napalm.base import NetworkDriver
@@ -36,7 +38,6 @@ from napalm.base.exceptions import (
     CommandErrorException,
 )
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
 
 class RespFetcherHttps:
     """Response fetcher."""
@@ -143,6 +144,10 @@ class ASADriver(NetworkDriver):
         self._context = None
         self.port = optional_args.get('port', 443)
         self.timeout = timeout
+        # delay factor is used for delaying api rest calls that show 
+        # problematic behaviour when being followed by a subsequent call
+        # that follows to fast
+        self.delay = optional_args.get('delay', .5)
         self.up = False
         self.base_url = "https://{}:{}/api".format(self.hostname, self.port)
         self.device = RespFetcherHttps(self.username, self.password, self.base_url, self.timeout)
@@ -162,6 +167,9 @@ class ASADriver(NetworkDriver):
 
     def _send_request(self, endpoint, data=None):
         """Send request method."""
+        
+        if self._proxy_to_other_context(endpoint):
+            endpoint = "{}?context={}".format(endpoint, self._context)
         if data is None:
             response = self.device.get_resp(endpoint)
         else:
@@ -229,6 +237,11 @@ class ASADriver(NetworkDriver):
         self.contexts = [ c['name'] for c in resp['items']]
         self.contexts.append('system')
 
+    def _proxy_to_other_context(self, endpoint):
+        return self.multicontext and \
+               self._context and \
+               endpoint not in MC_INCOMPATIBLE_ENDPOINTS
+
     def open(self):
         """
         Open a connection to the device.
@@ -258,12 +271,12 @@ class ASADriver(NetworkDriver):
 
     def cli(self, commands):
         """Run CLI commands via the API."""
+
         data = {
                   "commands": commands
-                }
+               }
 
-        endp = '/cli?context={}'.format(self._context) if self._context else '/cli'
-        response = self._send_request(endp, data)
+        response = self._send_request("/cli", data)
 
         result_dict = {}
 
@@ -324,6 +337,15 @@ class ASADriver(NetworkDriver):
             ifs = []
             for if_name in interfaces:
                 ifs.append(if_name)
+
+            # This is a nasty solution for an issue seen with ASA's 
+            # using the /api/interfaces/physical endpoint. If you call 
+            # that endpoint and then send another request to  quickly 
+            # (?), then the ASA closes the HTTPS connection without 
+            # sending a reponse
+
+            if self.multicontext:
+                time.sleep(self.delay)
 
             ifs_details = self._get_interfaces_details(ifs)
 
