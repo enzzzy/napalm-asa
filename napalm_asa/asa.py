@@ -168,7 +168,7 @@ class ASADriver(NetworkDriver):
     def _send_request(self, endpoint, data=None):
         """Send request method."""
         
-        if self._proxy_to_other_context(endpoint):
+        if self._use_context_in_request(endpoint):
             endpoint = "{}?context={}".format(endpoint, self._context)
         if data is None:
             response = self.device.get_resp(endpoint)
@@ -237,10 +237,12 @@ class ASADriver(NetworkDriver):
         self.contexts = [ c['name'] for c in resp['items']]
         self.contexts.append('system')
 
-    def _proxy_to_other_context(self, endpoint):
-        return self.multicontext and \
-               self._context and \
-               endpoint not in MC_INCOMPATIBLE_ENDPOINTS
+    def _use_context_in_request(self, endpoint):
+        if not self.multicontext or not self._context:
+            return False
+        if endpoint in MC_INCOMPATIBLE_ENDPOINTS:
+            return False
+        return True
 
     def open(self):
         """
@@ -360,7 +362,7 @@ class ASADriver(NetworkDriver):
             if not self.multicontext:
                 e = "Device is not in multicontext mode"
                 raise CommandErrorException(e)
-            if not context in self.contexts:
+            if context not in self.contexts:
                 e = "Context {} does not exist on device".format(context)
                 raise CommandErrorException(e)
 
