@@ -1,3 +1,3 @@
-MC_INCOMPATIBLE_ENDPOINTS=(
+MC_INCOMPATIBLE_ENDPOINTS = (
         '/monitoring/serialnumber',
 )

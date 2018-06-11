@@ -39,6 +39,7 @@ from napalm.base.exceptions import (
 )
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+
 class RespFetcherHttps:
     """Response fetcher."""
 
@@ -144,7 +145,7 @@ class ASADriver(NetworkDriver):
         self._context = None
         self.port = optional_args.get('port', 443)
         self.timeout = timeout
-        # delay factor is used for delaying api rest calls that show 
+        # delay factor is used for delaying api rest calls that show
         # problematic behaviour when being followed by a subsequent call
         # that follows to fast
         self.delay = optional_args.get('delay', .5)
@@ -167,7 +168,7 @@ class ASADriver(NetworkDriver):
 
     def _send_request(self, endpoint, data=None):
         """Send request method."""
-        
+
         if self._use_context_in_request(endpoint):
             endpoint = "{}?context={}".format(endpoint, self._context)
         if data is None:
@@ -220,7 +221,7 @@ class ASADriver(NetworkDriver):
     @property
     def context(self):
         return self._context
-    
+
     @context.setter
     def context(self, value):
         self._check_context_exists(value)
@@ -234,7 +235,7 @@ class ASADriver(NetworkDriver):
                 self.multicontext = False
             return
         self.multicontext = True
-        self.contexts = [ c['name'] for c in resp['items']]
+        self.contexts = [c['name'] for c in resp['items']]
         self.contexts.append('system')
 
     def _use_context_in_request(self, endpoint):
@@ -340,10 +341,10 @@ class ASADriver(NetworkDriver):
             for if_name in interfaces:
                 ifs.append(if_name)
 
-            # This is a nasty solution for an issue seen with ASA's 
-            # using the /api/interfaces/physical endpoint. If you call 
-            # that endpoint and then send another request to  quickly 
-            # (?), then the ASA closes the HTTPS connection without 
+            # This is a nasty solution for an issue seen with ASA's
+            # using the /api/interfaces/physical endpoint. If you call
+            # that endpoint and then send another request to  quickly
+            # (?), then the ASA closes the HTTPS connection without
             # sending a reponse
 
             if self.multicontext:
@@ -357,7 +358,7 @@ class ASADriver(NetworkDriver):
 
         return interfaces
 
-    def _check_context_exists(self,context):
+    def _check_context_exists(self, context):
         if context:
             if not self.multicontext:
                 e = "Device is not in multicontext mode"
@@ -368,12 +369,12 @@ class ASADriver(NetworkDriver):
 
     def get_config(self, retrieve='all'):
         """Get config."""
-        
+
         config = {
-            'startup': '',
-            'running': '',
-            'candidate': ''
-        }
+                'startup': '',
+                'running': '',
+                'candidate': ''
+                }
 
         commands = []
         startup_cmd = "show startup-config"
@@ -411,7 +412,7 @@ class ASADriver(NetworkDriver):
                     network = ip + '/' + mask
                     prefix_length = IPNetwork(network).prefixlen
                     interfaces[int_info['hardwareID']]['ipv4'] = \
-                        {ip: {'prefix_length': prefix_length}}
+                            {ip: {'prefix_length': prefix_length}}
 
                 if len(int_info['ipv6Info']['ipv6Addresses']) > 0:
                     if int_info['hardwareID'] not in interfaces:
@@ -422,7 +423,7 @@ class ASADriver(NetworkDriver):
                         ip = ipv6['address']['value']
                         prefix_length = ipv6['prefixLength']
                         interfaces[int_info['hardwareID']]['ipv6'][ip] = \
-                            {'prefix_length': prefix_length}
+                                {'prefix_length': prefix_length}
 
         return interfaces
 
@@ -437,15 +438,15 @@ class ASADriver(NetworkDriver):
                 regex = re.compile(r'.{2}')
                 mac = ":".join(re.findall(regex, mac))
                 arp_table.append(
-                    {
-                        'interface': item['interface'],
-                        'ip': item['ipAddress'],
-                        'mac': mac,
-                        'age': 0.0
-                    }
-                )
+                        {
+                            'interface': item['interface'],
+                            'ip': item['ipAddress'],
+                            'mac': mac,
+                            'age': 0.0
+                            }
+                        )
 
-        return arp_table
+                return arp_table
 
     def is_alive(self):
         """Check if connection is still valid."""
