@@ -1,0 +1,117 @@
+{
+  "kind": "collection#Context",
+  "selfLink": "https://172.16.62.100/api/contextmgmt/securitycontexts",
+  "rangeInfo": {
+    "offset": 0,
+    "limit": 3,
+    "total": 3
+  },
+  "items": [
+    {
+      "kind": "object#Context",
+      "selfLink": "https://172.16.62.100/api/contextmgmt/securitycontexts/ADMIN?context=system",
+      "name": "ADMIN",
+      "description": "",
+      "url": "disk0:/admin.cfg",
+      "resourceClass": "default",
+      "failoverGroupName": "",
+      "assignedInterfaces": [
+        {
+          "iface": "Management0/0",
+          "subIfFirst": "",
+          "subIfLast": "",
+          "ifaceMapping": "",
+          "ifMappingFirst": "",
+          "ifMappingLast": "",
+          "visible": false,
+          "shared": false
+        }
+      ],
+      "objectId": "ADMIN"
+    },
+    {
+      "kind": "object#Context",
+      "selfLink": "https://172.16.62.100/api/contextmgmt/securitycontexts/CUSTOMER1?context=system",
+      "name": "CUSTOMER1",
+      "description": "",
+      "url": "disk0:/CUSTOMER1.cfg",
+      "resourceClass": "default",
+      "failoverGroupName": "",
+      "assignedInterfaces": [
+        {
+          "iface": "Management0/0",
+          "subIfFirst": "",
+          "subIfLast": "",
+          "ifaceMapping": "",
+          "ifMappingFirst": "",
+          "ifMappingLast": "",
+          "visible": false,
+          "shared": false
+        },
+        {
+          "iface": "Port-channel17",
+          "subIfFirst": "3301",
+          "subIfLast": "",
+          "ifaceMapping": "",
+          "ifMappingFirst": "",
+          "ifMappingLast": "",
+          "visible": false,
+          "shared": false
+        },
+        {
+          "iface": "Port-channel21",
+          "subIfFirst": "3000",
+          "subIfLast": "",
+          "ifaceMapping": "",
+          "ifMappingFirst": "",
+          "ifMappingLast": "",
+          "visible": false,
+          "shared": false
+        }
+      ],
+      "objectId": "CUSTOMER1"
+    },
+    {
+      "kind": "object#Context",
+      "selfLink": "https://172.16.62.100/api/contextmgmt/securitycontexts/CUSTOMER2?context=system",
+      "name": "CUSTOMER2",
+      "description": "",
+      "url": "disk0:/CUSTOMER2.cfg",
+      "resourceClass": "default",
+      "failoverGroupName": "",
+      "assignedInterfaces": [
+        {
+          "iface": "Management0/0",
+          "subIfFirst": "",
+          "subIfLast": "",
+          "ifaceMapping": "",
+          "ifMappingFirst": "",
+          "ifMappingLast": "",
+          "visible": false,
+          "shared": false
+        },
+        {
+          "iface": "Port-channel17",
+          "subIfFirst": "3301",
+          "subIfLast": "",
+          "ifaceMapping": "",
+          "ifMappingFirst": "",
+          "ifMappingLast": "",
+          "visible": false,
+          "shared": false
+        },
+        {
+          "iface": "Port-channel21",
+          "subIfFirst": "3026",
+          "subIfLast": "",
+          "ifaceMapping": "",
+          "ifMappingFirst": "",
+          "ifMappingLast": "",
+          "visible": false,
+          "shared": false
+        }
+      ],
+      "objectId": "CUSTOMER2"
+    }
+  ]
+}
