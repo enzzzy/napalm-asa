@@ -412,7 +412,7 @@ class ASADriver(NetworkDriver):
                     network = ip + '/' + mask
                     prefix_length = IPNetwork(network).prefixlen
                     interfaces[int_info['hardwareID']]['ipv4'] = \
-                            {ip: {'prefix_length': prefix_length}}
+                        {ip: {'prefix_length': prefix_length}}
 
                 if len(int_info['ipv6Info']['ipv6Addresses']) > 0:
                     if int_info['hardwareID'] not in interfaces:
@@ -423,7 +423,7 @@ class ASADriver(NetworkDriver):
                         ip = ipv6['address']['value']
                         prefix_length = ipv6['prefixLength']
                         interfaces[int_info['hardwareID']]['ipv6'][ip] = \
-                                {'prefix_length': prefix_length}
+                            {'prefix_length': prefix_length}
 
         return interfaces
 
