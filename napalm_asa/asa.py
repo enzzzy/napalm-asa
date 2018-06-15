@@ -438,15 +438,15 @@ class ASADriver(NetworkDriver):
                 regex = re.compile(r'.{2}')
                 mac = ":".join(re.findall(regex, mac))
                 arp_table.append(
-                        {
-                            'interface': item['interface'],
-                            'ip': item['ipAddress'],
-                            'mac': mac,
-                            'age': 0.0
-                            }
-                        )
+                    {
+                        'interface': item['interface'],
+                        'ip': item['ipAddress'],
+                        'mac': mac,
+                        'age': 0.0
+                    }
+                )
 
-                return arp_table
+        return arp_table
 
     def is_alive(self):
         """Check if connection is still valid."""
